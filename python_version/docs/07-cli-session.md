@@ -6,13 +6,13 @@
 
 - `src/cli.py`
 - `src/session.py`
-- `main.py`
+- `src/__main__.py` （标准包入口）
 
 ## 运行模式
 
 ```mermaid
 graph TB
-    Start[main.py] --> Parse[parse_args]
+    Start[python -m src] --> Parse[parse_args]
     Parse -->|prompt| OneShot[agent.chat]
     Parse -->|no prompt| REPL[run_repl]
     Parse -->|--resume| Restore[load_session]

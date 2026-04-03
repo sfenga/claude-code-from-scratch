@@ -65,7 +65,7 @@ claude-code-from-scratch/
 git clone https://github.com/Windy3f3f3f3f/claude-code-from-scratch.git
 cd claude-code-from-scratch/python_version
 pip install -r requirements.txt
-python main.py --help
+python -m src --help
 ```
 
 ## 当前后端模式说明
@@ -84,7 +84,7 @@ Anthropic 模式：
 
 ```bash
 set ANTHROPIC_API_KEY=sk-ant-xxx
-python main.py
+python -m src
 ```
 
 OpenAI 兼容模式：
@@ -92,14 +92,8 @@ OpenAI 兼容模式：
 ```bash
 set OPENAI_API_KEY=sk-xxx
 set OPENAI_BASE_URL=https://api.openai.com/v1
-python main.py --model gpt-4o
+python -m src --model gpt-4o
 ```
-
-## 注释规范（已落实）
-
-- 类与函数均采用统一 docstring 模板（Parameters/Returns/Raises/Examples）。
-- 关键逻辑分段使用 `# 1)`、`# 2)` 注释。
-- 对较复杂对象转换和流式拼接代码给出逐步说明注释。
 
 ## 对齐说明
 

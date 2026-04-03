@@ -1,4 +1,4 @@
-"""Tool definitions and tool execution runtime."""
+﻿"""Tool definitions and tool execution runtime."""
 
 from __future__ import annotations
 
@@ -10,10 +10,10 @@ import subprocess
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-
+# Tool definition type for Claude API
 ToolDef = Dict[str, Any]
 
-# 1) 工具定义与 TS 参考版本字段对齐，便于直接映射到 LLM API。
+# All tool definitions
 tool_definitions: List[ToolDef] = [
     {
         "name": "read_file",
@@ -146,21 +146,6 @@ DANGEROUS_PATTERNS = [
 
 
 def read_file(input_data: Dict[str, Any]) -> str:
-    """
-    读取文件并返回带行号的文本。
-
-    Parameters:
-        input_data (Dict[str, Any]): 需要包含 file_path。
-
-    Returns:
-        str: 带行号文本，失败时返回错误描述字符串。
-
-    Raises:
-        None
-
-    Examples:
-        >>> read_file({"file_path": "README.md"})
-    """
     try:
         file_path = Path(str(input_data["file_path"]))
         content = file_path.read_text(encoding="utf-8")
@@ -172,21 +157,6 @@ def read_file(input_data: Dict[str, Any]) -> str:
 
 
 def write_file(input_data: Dict[str, Any]) -> str:
-    """
-    写入文件内容，不存在则自动创建目录。
-
-    Parameters:
-        input_data (Dict[str, Any]): 包含 file_path 与 content。
-
-    Returns:
-        str: 执行结果文本。
-
-    Raises:
-        None
-
-    Examples:
-        >>> write_file({"file_path": "tmp/a.txt", "content": "hello"})
-    """
     try:
         file_path = Path(str(input_data["file_path"]))
         content = str(input_data["content"])
@@ -198,35 +168,18 @@ def write_file(input_data: Dict[str, Any]) -> str:
 
 
 def edit_file(input_data: Dict[str, Any]) -> str:
-    """
-    按唯一精确匹配进行字符串替换。
-
-    Parameters:
-        input_data (Dict[str, Any]): 包含 file_path、old_string、new_string。
-
-    Returns:
-        str: 执行结果文本。
-
-    Raises:
-        None
-
-    Examples:
-        >>> edit_file({"file_path": "a.py", "old_string": "x", "new_string": "y"})
-    """
     try:
         file_path = Path(str(input_data["file_path"]))
         old_string = str(input_data["old_string"])
         new_string = str(input_data["new_string"])
         content = file_path.read_text(encoding="utf-8")
 
-        # 1) 与 TS 版保持一致：必须是唯一匹配，0 次或多次都拒绝。
         count = content.count(old_string)
         if count == 0:
             return f"Error: old_string not found in {file_path}"
         if count > 1:
             return f"Error: old_string found {count} times. Must be unique."
 
-        # 2) 只替换首个匹配，避免意外批量改动。
         updated = content.replace(old_string, new_string, 1)
         file_path.write_text(updated, encoding="utf-8")
         return f"Successfully edited {file_path}"
@@ -235,26 +188,10 @@ def edit_file(input_data: Dict[str, Any]) -> str:
 
 
 def list_files(input_data: Dict[str, Any]) -> str:
-    """
-    根据 glob 模式列出文件。
-
-    Parameters:
-        input_data (Dict[str, Any]): 包含 pattern，可选 path。
-
-    Returns:
-        str: 文件列表文本。
-
-    Raises:
-        None
-
-    Examples:
-        >>> list_files({"pattern": "**/*.py", "path": "src"})
-    """
     try:
         pattern = str(input_data["pattern"])
         base_path = Path(str(input_data.get("path", os.getcwd())))
 
-        # 1) 使用 pathlib 的 glob，忽略 node_modules 与 .git。
         files = []
         for path in base_path.glob(pattern):
             if not path.is_file():
@@ -276,21 +213,6 @@ def list_files(input_data: Dict[str, Any]) -> str:
 
 
 def grep_search(input_data: Dict[str, Any]) -> str:
-    """
-    在目标路径内执行正则搜索。
-
-    Parameters:
-        input_data (Dict[str, Any]): 包含 pattern，可选 path 与 include。
-
-    Returns:
-        str: 匹配结果文本，含文件路径和行号。
-
-    Raises:
-        None
-
-    Examples:
-        >>> grep_search({"pattern": "class Agent", "path": "src"})
-    """
     try:
         pattern = str(input_data["pattern"])
         search_path = Path(str(input_data.get("path", ".")))
@@ -298,7 +220,6 @@ def grep_search(input_data: Dict[str, Any]) -> str:
         include_pattern = str(include) if include else None
         regex = re.compile(pattern)
 
-        # 1) 构建待搜索文件清单。
         files: List[Path] = []
         if search_path.is_file():
             files = [search_path]
@@ -307,7 +228,6 @@ def grep_search(input_data: Dict[str, Any]) -> str:
                 if file_path.is_file():
                     files.append(file_path)
 
-        # 2) 按 include 过滤并逐行搜索。
         matches: List[str] = []
         for file_path in files:
             path_text = file_path.as_posix()
@@ -339,21 +259,6 @@ def grep_search(input_data: Dict[str, Any]) -> str:
 
 
 def run_shell(input_data: Dict[str, Any]) -> str:
-    """
-    执行 shell 命令并返回输出。
-
-    Parameters:
-        input_data (Dict[str, Any]): 包含 command，可选 timeout（毫秒）。
-
-    Returns:
-        str: 标准输出或失败信息。
-
-    Raises:
-        None
-
-    Examples:
-        >>> run_shell({"command": "echo hello"})
-    """
     command = str(input_data.get("command", ""))
     timeout_ms = int(input_data.get("timeout", 30_000))
 
@@ -380,42 +285,10 @@ def run_shell(input_data: Dict[str, Any]) -> str:
 
 
 def is_dangerous(command: str) -> bool:
-    """
-    判断命令是否匹配危险模式。
-
-    Parameters:
-        command (str): 命令字符串。
-
-    Returns:
-        bool: 匹配任一危险模式返回 True。
-
-    Raises:
-        None
-
-    Examples:
-        >>> is_dangerous("rm -rf .")
-        True
-    """
     return any(pattern.search(command) for pattern in DANGEROUS_PATTERNS)
 
 
 def needs_confirmation(tool_name: str, input_data: Dict[str, Any]) -> Optional[str]:
-    """
-    判断工具执行是否需要用户确认。
-
-    Parameters:
-        tool_name (str): 工具名。
-        input_data (Dict[str, Any]): 工具输入。
-
-    Returns:
-        Optional[str]: 需要确认则返回确认文本，否则返回 None。
-
-    Raises:
-        None
-
-    Examples:
-        >>> needs_confirmation("run_shell", {"command": "rm -rf /"})
-    """
     if tool_name == "run_shell" and is_dangerous(str(input_data.get("command", ""))):
         return str(input_data.get("command", ""))
 
@@ -429,22 +302,6 @@ def needs_confirmation(tool_name: str, input_data: Dict[str, Any]) -> Optional[s
 
 
 def truncate_result(result: str) -> str:
-    """
-    截断过长工具输出并保留头尾。
-
-    Parameters:
-        result (str): 原始输出。
-
-    Returns:
-        str: 截断后的输出。
-
-    Raises:
-        None
-
-    Examples:
-        >>> truncate_result("a" * 10)
-        'aaaaaaaaaa'
-    """
     if len(result) <= MAX_RESULT_CHARS:
         return result
 
@@ -458,23 +315,6 @@ def truncate_result(result: str) -> str:
 
 
 async def execute_tool(name: str, input_data: Dict[str, Any]) -> str:
-    """
-    执行工具分发并返回结果。
-
-    Parameters:
-        name (str): 工具名。
-        input_data (Dict[str, Any]): 工具输入参数。
-
-    Returns:
-        str: 工具执行结果（已统一截断保护）。
-
-    Raises:
-        None
-
-    Examples:
-        >>> # await execute_tool("list_files", {"pattern": "**/*.py"})
-    """
-    # 1) 通过分发表保持结构清晰，行为与 TS switch 一致。
     handlers = {
         "read_file": read_file,
         "write_file": write_file,
@@ -488,6 +328,7 @@ async def execute_tool(name: str, input_data: Dict[str, Any]) -> str:
     if handler is None:
         return f"Unknown tool: {name}"
 
-    # 2) 通过 to_thread 承载阻塞 I/O，保持上层 Agent 异步链路可 await。
     result = await asyncio.to_thread(handler, input_data)
     return truncate_result(result)
+
+

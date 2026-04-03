@@ -1,10 +1,10 @@
-"""Compatibility launcher for running from repository root."""
+"""Run mini agent via `python -m src`."""
 
 from __future__ import annotations
 
 import asyncio
 
-from src.cli import main
+from .cli import main
 
 
 if __name__ == "__main__":

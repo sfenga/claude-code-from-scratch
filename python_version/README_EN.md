@@ -65,7 +65,7 @@ claude-code-from-scratch/
 git clone https://github.com/Windy3f3f3f3f/claude-code-from-scratch.git
 cd claude-code-from-scratch/python_version
 pip install -r requirements.txt
-python main.py --help
+python -m src --help
 ```
 
 ## Current Backend Selection
@@ -84,7 +84,7 @@ Anthropic mode:
 
 ```bash
 set ANTHROPIC_API_KEY=sk-ant-xxx
-python main.py
+python -m src
 ```
 
 OpenAI-compatible mode:
@@ -92,7 +92,7 @@ OpenAI-compatible mode:
 ```bash
 set OPENAI_API_KEY=sk-xxx
 set OPENAI_BASE_URL=https://api.openai.com/v1
-python main.py --model gpt-4o
+python -m src --model gpt-4o
 ```
 
 ## Commenting Rules Applied

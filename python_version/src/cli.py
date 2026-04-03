@@ -1,4 +1,4 @@
-"""CLI entrypoint for Mini Claude Code (Python version)."""
+﻿"""CLI entrypoint for the Python mini agent."""
 
 from __future__ import annotations
 
@@ -7,37 +7,15 @@ import os
 import signal
 import sys
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
-from agent import Agent, AgentOptions
-from session import get_latest_session_id, load_session
-from ui import print_error, print_info, print_user_prompt, print_welcome
+from .agent import Agent, AgentOptions
+from .session import get_latest_session_id, load_session
+from .ui import print_error, print_info, print_user_prompt, print_welcome
 
 
 @dataclass
 class ParsedArgs:
-    """
-    命令行参数结构。
-
-    Parameters:
-        yolo (bool): 是否跳过确认。
-        model (str): 模型名。
-        api_base (Optional[str]): OpenAI 兼容地址。
-        api_key (Optional[str]): API Key。
-        prompt (Optional[str]): 单次模式 prompt。
-        resume (bool): 是否恢复上次会话。
-        thinking (bool): 是否启用 extended thinking。
-
-    Returns:
-        ParsedArgs: 参数对象。
-
-    Raises:
-        None
-
-    Examples:
-        >>> ParsedArgs(False, "claude-opus-4-6")
-    """
-
     yolo: bool
     model: str
     api_base: Optional[str] = None
@@ -48,25 +26,10 @@ class ParsedArgs:
 
 
 def parse_args(argv: List[str]) -> ParsedArgs:
-    """
-    解析命令行参数（手写解析，保持参考实现风格）。
-
-    Parameters:
-        argv (List[str]): 命令行参数列表（不含程序名）。
-
-    Returns:
-        ParsedArgs: 解析结果。
-
-    Raises:
-        SystemExit: --help 时退出。
-
-    Examples:
-        >>> parse_args(["--yolo", "hello"]).yolo
-        True
-    """
+    """Parse command line arguments and environment variables."""
     yolo = False
     thinking = False
-    model = os.environ.get("MINI_CLAUDE_MODEL", "gpt-4o-mini")
+    model = os.environ.get("MINI_CLAUDE_MODEL", "claude-opus-4-6")
     api_base: Optional[str] = None
     api_key: Optional[str] = None
     resume = False
@@ -95,8 +58,7 @@ def parse_args(argv: List[str]) -> ParsedArgs:
             resume = True
         elif arg in {"--help", "-h"}:
             print(
-                """
-Usage: mini-claude-py [options] [prompt]
+                """Usage: mini-claude-py [options] [prompt]
 
 Options:
   --yolo, -y       Skip all confirmation prompts
@@ -129,41 +91,37 @@ REPL commands:
     )
 
 
+def resolve_api_config(parsed: ParsedArgs) -> Tuple[Optional[str], Optional[str], bool]:
+    """Resolve API config: CLI flags > env vars
+    Priority: --api-base/--api-key flags first, then env vars
+    """
+    api_base = parsed.api_base
+    api_key = parsed.api_key
+    use_openai = bool(parsed.api_base)
+
+    if not api_key:
+        if os.environ.get("OPENAI_API_KEY") and os.environ.get("OPENAI_BASE_URL"):
+            api_key = os.environ.get("OPENAI_API_KEY")
+            api_base = api_base or os.environ.get("OPENAI_BASE_URL")
+            use_openai = True
+        elif os.environ.get("ANTHROPIC_API_KEY"):
+            api_key = os.environ.get("ANTHROPIC_API_KEY")
+            api_base = api_base or os.environ.get("ANTHROPIC_BASE_URL")
+            use_openai = False
+        elif os.environ.get("OPENAI_API_KEY"):
+            api_key = os.environ.get("OPENAI_API_KEY")
+            api_base = api_base or os.environ.get("OPENAI_BASE_URL")
+            use_openai = True
+
+    return api_base, api_key, use_openai
+
+
 async def run_repl(agent: Agent) -> None:
-    """
-    运行交互式 REPL。
-
-    Parameters:
-        agent (Agent): Agent 实例。
-
-    Returns:
-        None: 循环处理用户输入直到退出。
-
-    Raises:
-        KeyboardInterrupt: 连续中断时退出进程。
-
-    Examples:
-        >>> # run_repl(agent)
-    """
+    """Interactive REPL loop for the assistant."""
+    # Ctrl+C handling
     sigint_count = 0
 
     def _sigint_handler(signum, frame):
-        """
-        SIGINT 信号处理器。
-
-        Parameters:
-            signum (int): 信号值。
-            frame (object): 当前栈帧。
-
-        Returns:
-            None: 通过终端提示反馈状态。
-
-        Raises:
-            SystemExit: 连续两次 Ctrl+C 时退出。
-
-        Examples:
-            >>> # _sigint_handler(signal.SIGINT, None)
-        """
         nonlocal sigint_count
         del signum, frame
 
@@ -201,8 +159,6 @@ async def run_repl(agent: Agent) -> None:
         if user_input in {"exit", "quit"}:
             print("\nBye!\n")
             return
-
-        # 1) 先处理内建 REPL 命令。
         if user_input == "/clear":
             agent.clear_history()
             continue
@@ -216,74 +172,18 @@ async def run_repl(agent: Agent) -> None:
                 print_error(str(error))
             continue
 
-        # 2) 普通文本进入 Agent 主循环。
         try:
             await agent.chat(user_input)
         except Exception as error:
-            text = str(error)
-            if "aborted" in text.lower():
-                pass
-            else:
-                print_error(text)
-
-
-def resolve_api_config(parsed: ParsedArgs):
-    """
-    按优先级解析 API 配置（CLI 参数优先）。
-
-    Parameters:
-        parsed (ParsedArgs): 已解析参数。
-
-    Returns:
-        tuple[Optional[str], Optional[str], bool]: api_base, api_key, use_openai。
-
-    Raises:
-        None
-
-    Examples:
-        >>> resolve_api_config(ParsedArgs(False, "m"))
-    """
-    resolved_api_base = parsed.api_base
-    resolved_api_key = parsed.api_key
-    resolved_use_openai = bool(parsed.api_base)
-
-    if not resolved_api_key:
-        if os.environ.get("OPENAI_API_KEY") and os.environ.get("OPENAI_BASE_URL"):
-            resolved_api_key = os.environ.get("OPENAI_API_KEY")
-            resolved_api_base = resolved_api_base or os.environ.get("OPENAI_BASE_URL")
-            resolved_use_openai = True
-        elif os.environ.get("ANTHROPIC_API_KEY"):
-            resolved_api_key = os.environ.get("ANTHROPIC_API_KEY")
-            resolved_api_base = resolved_api_base or os.environ.get("ANTHROPIC_BASE_URL")
-            resolved_use_openai = False
-        elif os.environ.get("OPENAI_API_KEY"):
-            resolved_api_key = os.environ.get("OPENAI_API_KEY")
-            resolved_api_base = resolved_api_base or os.environ.get("OPENAI_BASE_URL")
-            resolved_use_openai = True
-
-    return resolved_api_base, resolved_api_key, resolved_use_openai
+            if "aborted" not in str(error).lower():
+                print_error(str(error))
 
 
 async def main() -> None:
-    """
-    CLI 主入口。
-
-    Parameters:
-        None
-
-    Returns:
-        None: 根据模式执行 one-shot 或 REPL。
-
-    Raises:
-        SystemExit: 缺少 API key 或发生致命异常时退出。
-
-    Examples:
-        >>> # main()
-    """
     parsed = parse_args(sys.argv[1:])
-    resolved_api_base, resolved_api_key, resolved_use_openai = resolve_api_config(parsed)
+    api_base, api_key, use_openai = resolve_api_config(parsed)
 
-    if not resolved_api_key:
+    if not api_key:
         print_error(
             "API key is required.\n"
             "  Set ANTHROPIC_API_KEY (+ optional ANTHROPIC_BASE_URL) for Anthropic format,\n"
@@ -297,14 +197,14 @@ async def main() -> None:
             yolo=parsed.yolo,
             model=parsed.model,
             thinking=parsed.thinking,
-            api_base=resolved_api_base if resolved_use_openai else None,
-            anthropic_base_url=resolved_api_base if not resolved_use_openai else None,
-            api_key=resolved_api_key,
+            api_base=api_base if use_openai else None,
+            anthropic_base_url=api_base if not use_openai else None,
+            api_key=api_key,
         )
     )
 
-    # 1) 如果指定 --resume，恢复最近会话。
     if parsed.resume:
+        # Resume session if requested
         session_id = get_latest_session_id()
         if session_id:
             session = load_session(session_id)
@@ -320,16 +220,19 @@ async def main() -> None:
         else:
             print_info("No previous sessions found.")
 
-    # 2) one-shot 与 REPL 两种模式。
     if parsed.prompt:
+        # One-shot mode
         try:
             await agent.chat(parsed.prompt)
         except Exception as error:
             print_error(str(error))
             raise SystemExit(1)
     else:
+        # Interactive REPL mode
         await run_repl(agent)
 
 
 if __name__ == "__main__":
     asyncio.run(main())
+
+
