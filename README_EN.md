@@ -8,7 +8,7 @@
 > Build Claude Code from scratch, step by step
 
 <p align="center">
-  <a href="https://windy3f3f3f3f.github.io/claude-code-from-scratch/"><strong>📘 Read Tutorial Online →</strong></a>
+  <a href="https://windy3f3f3f3f.github.io/claude-code-from-scratch/#/en/"><strong>📘 Read Tutorial Online →</strong></a>
   &nbsp;&nbsp;|&nbsp;&nbsp;
   <a href="./README.md">中文</a>
 </p>
@@ -32,20 +32,20 @@ This isn't a demo — it's a **step-by-step tutorial**. Follow along, write a fe
 | Chapter | Content | Source Mapping |
 |---------|---------|---------------|
 | **Phase 1: Build a Working Coding Agent** | | |
-| [1. Agent Loop](https://windy3f3f3f3f.github.io/claude-code-from-scratch/#/docs/01-agent-loop) | Core loop: call LLM → execute tools → repeat | `agent.ts` ↔ `query.ts` |
-| [2. Tool System](https://windy3f3f3f3f.github.io/claude-code-from-scratch/#/docs/02-tools) | 13 tools + mtime guard + deferred loading | `tools.ts` ↔ `Tool.ts` + 66 tools |
-| [3. System Prompt](https://windy3f3f3f3f.github.io/claude-code-from-scratch/#/docs/03-system-prompt) | Prompt engineering + @include syntax | `prompt.ts` ↔ `prompts.ts` |
-| [4. CLI & Sessions](https://windy3f3f3f3f.github.io/claude-code-from-scratch/#/docs/04-cli-session) | REPL, Ctrl+C, session persistence | `cli.ts` ↔ `cli.tsx` |
-| [5. Streaming](https://windy3f3f3f3f.github.io/claude-code-from-scratch/#/docs/05-streaming) | Dual-backend + streaming tool exec + parallel | `agent.ts` ↔ `api/claude.ts` |
-| [6. Permissions](https://windy3f3f3f3f.github.io/claude-code-from-scratch/#/docs/06-permissions) | 5 modes + declarative rules + danger detection | `tools.ts` ↔ `permissions/` (52KB) |
-| [7. Context](https://windy3f3f3f3f.github.io/claude-code-from-scratch/#/docs/07-context) | 4-tier compression + large result persistence | `agent.ts` ↔ `compact/` |
+| [1. Agent Loop](https://windy3f3f3f3f.github.io/claude-code-from-scratch/#/en/docs/01-agent-loop) | Core loop: call LLM → execute tools → repeat | `agent.ts` ↔ `query.ts` |
+| [2. Tool System](https://windy3f3f3f3f.github.io/claude-code-from-scratch/#/en/docs/02-tools) | 13 tools + mtime guard + deferred loading | `tools.ts` ↔ `Tool.ts` + 66 tools |
+| [3. System Prompt](https://windy3f3f3f3f.github.io/claude-code-from-scratch/#/en/docs/03-system-prompt) | Prompt engineering + @include syntax | `prompt.ts` ↔ `prompts.ts` |
+| [4. CLI & Sessions](https://windy3f3f3f3f.github.io/claude-code-from-scratch/#/en/docs/04-cli-session) | REPL, Ctrl+C, session persistence | `cli.ts` ↔ `cli.tsx` |
+| [5. Streaming](https://windy3f3f3f3f.github.io/claude-code-from-scratch/#/en/docs/05-streaming) | Dual-backend + streaming tool exec + parallel | `agent.ts` ↔ `api/claude.ts` |
+| [6. Permissions](https://windy3f3f3f3f.github.io/claude-code-from-scratch/#/en/docs/06-permissions) | 5 modes + declarative rules + danger detection | `tools.ts` ↔ `permissions/` (52KB) |
+| [7. Context](https://windy3f3f3f3f.github.io/claude-code-from-scratch/#/en/docs/07-context) | 4-tier compression + large result persistence | `agent.ts` ↔ `compact/` |
 | **Phase 2: Advanced Capabilities** | | |
-| [8. Memory](https://windy3f3f3f3f.github.io/claude-code-from-scratch/#/docs/08-memory) | 4-type memory + semantic recall + async prefetch | `memory.ts` ↔ `memory.ts` |
-| [9. Skills](https://windy3f3f3f3f.github.io/claude-code-from-scratch/#/docs/09-skills) | Skill discovery + inline/fork dual mode | `skills.ts` ↔ `SkillTool/` |
-| [10. Plan Mode](https://windy3f3f3f3f.github.io/claude-code-from-scratch/#/docs/10-plan-mode) | Read-only planning + 4-option approval workflow | `agent.ts` ↔ `EnterPlanMode` |
-| [11. Multi-Agent](https://windy3f3f3f3f.github.io/claude-code-from-scratch/#/docs/11-multi-agent) | Sub-Agent fork-return architecture | `subagent.ts` ↔ `AgentTool/` |
-| [12. MCP Integration](https://windy3f3f3f3f.github.io/claude-code-from-scratch/#/docs/12-mcp) | JSON-RPC over stdio for external tools | `mcp.ts` ↔ `mcpClient.ts` |
-| [13. Comparison](https://windy3f3f3f3f.github.io/claude-code-from-scratch/#/docs/13-whats-next) | Full comparison + extension ideas | Global |
+| [8. Memory](https://windy3f3f3f3f.github.io/claude-code-from-scratch/#/en/docs/08-memory) | 4-type memory + semantic recall + async prefetch | `memory.ts` ↔ `memory.ts` |
+| [9. Skills](https://windy3f3f3f3f.github.io/claude-code-from-scratch/#/en/docs/09-skills) | Skill discovery + inline/fork dual mode | `skills.ts` ↔ `SkillTool/` |
+| [10. Plan Mode](https://windy3f3f3f3f.github.io/claude-code-from-scratch/#/en/docs/10-plan-mode) | Read-only planning + 4-option approval workflow | `agent.ts` ↔ `EnterPlanMode` |
+| [11. Multi-Agent](https://windy3f3f3f3f.github.io/claude-code-from-scratch/#/en/docs/11-multi-agent) | Sub-Agent fork-return architecture | `subagent.ts` ↔ `AgentTool/` |
+| [12. MCP Integration](https://windy3f3f3f3f.github.io/claude-code-from-scratch/#/en/docs/12-mcp) | JSON-RPC over stdio for external tools | `mcp.ts` ↔ `mcpClient.ts` |
+| [13. Comparison](https://windy3f3f3f3f.github.io/claude-code-from-scratch/#/en/docs/13-whats-next) | Full comparison + extension ideas | Global |
 
 ## Quick Start
 
@@ -139,7 +139,7 @@ mini-claude-py               # Launch directly
 | `/skills` | List available skills |
 | `/<skill>` | Invoke a registered skill (e.g. `/commit`) |
 
-> See [CLI & Sessions](https://windy3f3f3f3f.github.io/claude-code-from-scratch/#/docs/04-cli-session) and [Testing](https://windy3f3f3f3f.github.io/claude-code-from-scratch/#/docs/14-testing)
+> See [CLI & Sessions](https://windy3f3f3f3f.github.io/claude-code-from-scratch/#/en/docs/04-cli-session) and [Testing](https://windy3f3f3f3f.github.io/claude-code-from-scratch/#/en/docs/14-testing)
 
 ## Comparison with Claude Code
 
